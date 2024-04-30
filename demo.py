@@ -51,6 +51,7 @@ def printResults(before, after, encoded, isArithmetic = False):
         st.latex(latex_fraction)
         st.latex(latex_expression)
 
+# LZW
 st.header('LZW')
 lzw = LZW()
 encoded_file = lzw.LZW_encoder(text)
@@ -65,13 +66,19 @@ efficiency = H/l_avg * 100
 f_efficiency = "{:.2f}".format(efficiency)
 st.write('Efficiency: ', f_efficiency, '%')
 
-
+# Huffman
 st.header("Huffman")
 huffman = Huffman()
 encoded,d = huffman.encode(text)
 after = len(encoded)
 printResults(no_bitsBefore, after, encoded)
-st.write('Key-value map: ', d)
+formatted_string = "| Letter | Codeword |\n| ----------- | ----------- |\n"
+
+for letter, codeword in d.items():
+    formatted_string += f"| {letter} | {codeword} |\n"
+
+print(formatted_string)
+st.markdown(formatted_string)
 
 avg_length = 0
 for char, code in d.items():
@@ -84,12 +91,10 @@ f_efficiency = "{:.2f}".format(efficiency)
 st.write('Efficiency: ', f_efficiency, '%')
 
 
-
-# st.header('RLE')
-# rle = RLE()
-# encoded_file = rle.run_length_encoding(text)
-# # bins = Metrics.binarify(encoded_file)
-# # l_avg = Metrics.Avg_length(bins, [1/len(bins)]*len(bins))
-# before, after = Metrics.No_bits(text, encoded_file)
-# printResults(before, after, encoded_file)
-# # st.write('Length average: ', l_avg)
+# RLE
+st.header('RLE')
+rle = RLE()
+encoded_file = rle.run_length_encoding(text)
+before, after = Metrics.No_bits(text, encoded_file)
+printResults(before, after, encoded_file)
+# st.write('Length average: ', l_avg)
