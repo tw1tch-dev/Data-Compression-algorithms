@@ -6,19 +6,14 @@ from compression import Huffman
 from compression import Golomb
 from compression import Arithmetic
 
-st.markdown("""
-<style>
-.st-emotion-cache-ot9ait {
-    visibility:hidden;
-}
-h2 {
-    border-left-style: solid;
-    border-left-color: gray;
-    padding-left: 15px;
-    border-bottom-style: solid;
-    border-bottom-color: gray;
-}
-</style>""", unsafe_allow_html=True)
+with open('css/styles.css', 'r') as file:
+    css = file.read()
+
+st.markdown(f"""
+    <style>
+        {css}
+    </style>
+""", unsafe_allow_html=True)
 
 st.title("Data Compression Project")
 text = st.text_input('Text to encode', 'abbfcsdfdddfadfafafa')
