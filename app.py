@@ -102,11 +102,16 @@ col4, col5 = st.columns(2)
     
 with col4:
     st.header("Golomb")
-    # encoded_file = []
-    # m = 1000
-    # for integer in text:
-    #     encoded_file.append(Golomb.golomb_encode(integer,m))
+    golomb = Golomb()
+    encoded_file = []
+    m = 1000
+    for integer in text:
+        encoded_file.append(Golomb.golomb_encode(ord(integer),m))
     # st.write(encoded_file)
+
+    # num_bits = len(encoded_file)
+    n_bits_before, n_bits_after = Metrics.No_bits(text, None, encoded_file)
+    printResults(no_bitsBefore, num_bits)
 
 with col5:
     st.header("LZW")
