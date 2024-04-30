@@ -10,6 +10,9 @@ st.title("Data Compression Project")
 text = st.text_input('Text to encode', 'abbfcsdfdddfadfafafa')
 no_bitsBefore = len(text) * 8
 st.write('Bits before encoding: ', no_bitsBefore)
+H, prob = Metrics.entropy(text)
+st.write('Entropy: ', H)
+st.write('Probability occurence:', prob) # probability occurence
 
 def printResults(before, after, encoded, isArithmetic = False):
     if isArithmetic:
@@ -53,14 +56,40 @@ lzw = LZW()
 encoded_file = lzw.LZW_encoder(text)
 bins = Metrics.binarify(encoded_file)
 l_avg = Metrics.Avg_length(bins, [1/len(bins)]*len(bins))
-H,d= Metrics.entropy(text)
 before,after = Metrics.No_bits(text,bits_array=bins)
 printResults(before, after, encoded_file)
-st.write('Length average: ', l_avg)
-st.write('Entropy: ', H)
-st.write(d) # probability occurence
-st.header('RLE')
-rle = RLE()
-encoded_file = rle.run_length_encoding(text)
-before, after = Metrics.No_bits(text, encoded_file)
-printResults(before, after, encoded_file)
+st.write('Encoded file:', encoded_file)
+st.write('bins: ', bins)
+st.write('Average length: ', l_avg)
+efficiency = H/l_avg * 100
+f_efficiency = "{:.2f}".format(efficiency)
+st.write('Efficiency: ', f_efficiency, '%')
+
+
+st.header("Huffman")
+huffman = Huffman()
+encoded,d = huffman.encode(text)
+after = len(encoded)
+printResults(no_bitsBefore, after, encoded)
+st.write('Key-value map: ', d)
+
+avg_length = 0
+for char, code in d.items():
+    p = prob[char]
+    avg_length += len(code) * p
+
+st.write("Average length:", avg_length)
+efficiency = H/avg_length * 100
+f_efficiency = "{:.2f}".format(efficiency)
+st.write('Efficiency: ', f_efficiency, '%')
+
+
+
+# st.header('RLE')
+# rle = RLE()
+# encoded_file = rle.run_length_encoding(text)
+# # bins = Metrics.binarify(encoded_file)
+# # l_avg = Metrics.Avg_length(bins, [1/len(bins)]*len(bins))
+# before, after = Metrics.No_bits(text, encoded_file)
+# printResults(before, after, encoded_file)
+# # st.write('Length average: ', l_avg)
