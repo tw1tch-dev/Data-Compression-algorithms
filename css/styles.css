@@ -8,3 +8,6 @@ h2 {
     border-bottom-style: solid;
     border-bottom-color: gray;
 }
+.stApp a:first-child {
+    display: none;
+}
