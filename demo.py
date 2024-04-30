@@ -16,7 +16,14 @@ st.write('Probability occurence:', prob) # probability occurence
 
 def printResults(before, after, encoded, isArithmetic = False):
     if isArithmetic:
-        st.write('Encoded value:', encoded)
+        if isinstance(encoded, float):
+            # Format the float to remove trailing zeros
+            encoded_str = "{:.6f}".format(encoded).rstrip('0').rstrip('.')
+        else:
+            # Otherwise, keep the original encoded value
+            encoded_str = str(encoded)
+        st.write('Encoded value:', encoded_str)
+
     else:
         if isinstance(encoded, float):
             # Format the float to three decimal places
@@ -69,7 +76,7 @@ st.write('Efficiency: ', f_efficiency, '%')
 # Huffman
 st.header("Huffman")
 huffman = Huffman()
-encoded,d = huffman.encode(text)
+encoded, d = huffman.encode(text)
 after = len(encoded)
 printResults(no_bitsBefore, after, encoded)
 formatted_string = "| Letter | Codeword |\n| ----------- | ----------- |\n"
@@ -77,7 +84,6 @@ formatted_string = "| Letter | Codeword |\n| ----------- | ----------- |\n"
 for letter, codeword in d.items():
     formatted_string += f"| {letter} | {codeword} |\n"
 
-print(formatted_string)
 st.markdown(formatted_string)
 
 avg_length = 0
@@ -97,4 +103,19 @@ rle = RLE()
 encoded_file = rle.run_length_encoding(text)
 before, after = Metrics.No_bits(text, encoded_file)
 printResults(before, after, encoded_file)
-# st.write('Length average: ', l_avg)
+
+# Arithmetic
+st.header('Arithmetic')
+H, table = Metrics.entropy(text)
+symbols = list(table.keys())
+probabilities = [round(prob, 2) for prob in table.values()]
+sorted_symbols, sorted_probabilities = zip(*sorted(zip(symbols, probabilities)))
+sequence = st.text_input('Sequence', 'abc') # needs revision
+encoded_value = Arithmetic.encode_sequence(sequence, sorted_symbols, sorted_probabilities)      
+
+binary_encoded_value = bin(int(encoded_value * (2 ** 64)))[2:]
+num_bits_after = len(binary_encoded_value)
+
+printResults(no_bitsBefore, num_bits_after, encoded_value, isArithmetic = True)
+
+# GOLOMB ONLY WORKS WITH INTEGERS
