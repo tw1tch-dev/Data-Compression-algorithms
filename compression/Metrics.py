@@ -1,6 +1,7 @@
-
+import streamlit as st
 import math 
 import re
+
 class Metrics:
     def __init__(self):
         pass
@@ -81,4 +82,51 @@ class Metrics:
             H += p * math.log2(1/p)
         return H,alpha_dist
     
-    
+    def printResults(before, after, encoded, isArithmetic = False):
+        if isArithmetic:
+            # check if encoded is float (particularly for arithmetic)
+            if isinstance(encoded, float):
+                # format the float to remove trailing zeros and only six decimals
+                encoded_str = "{:.6f}".format(encoded).rstrip('0').rstrip('.')
+            else:
+                # if not, keep the original encoded value
+                encoded_str = str(encoded)
+            st.write('Encoded value:', encoded_str)
+
+        else:
+            # check if encoded is float
+            if isinstance(encoded, float):
+                # format the float to three decimals
+                encoded_str = "%.3f" % encoded
+            else:
+                # if not, keep the original encoded value
+                encoded_str = str(encoded)
+            st.write('Encoded value:', encoded_str)
+        
+        # print bits after encoding
+        st.write('Bits after encoding: ', after)
+        numerator, denominator = (before / after).as_integer_ratio()
+
+        # check if the fraction has large numbers (bigger than 1000)
+        # if yes, then convert to decimal
+        if(numerator > 1000):
+            st.markdown('<center>Compression ratio</center>', unsafe_allow_html=True)
+
+            # convert before/after to a decimal and format it as a string
+            compression_ratio = before / after
+            latex_expression = f'{compression_ratio:.2f}' # second decimal to avoid huge numbers
+
+            # write the LaTeX expression
+            st.latex(latex_expression)
+
+        # if no, then print the fraction in latex format
+        else:
+            # format the compression ratio as LaTeX fraction
+            latex_fraction = r'\frac{' + str(numerator) + '}{' + str(denominator) + '}'
+            compression_ratio = before / after
+            latex_expression = f'{compression_ratio:.2f}'
+
+            # write the compression ratio using LaTeX formatting
+            st.markdown('<center>Compression ratio</center>', unsafe_allow_html=True)
+            st.latex(latex_fraction)
+            st.latex(latex_expression)
