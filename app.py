@@ -27,7 +27,18 @@ st.write('Bits before encoding: ', no_bitsBefore)
 # st.write('Text to be encoded is ', text)
 # if before / after as integer ratio is so big then print before/after
 # return compressionRatio for comparison
-def printResults(before, after):
+def printResults(before, after, encoded, isArithmetic = False):
+    if isArithmetic:
+        st.write('Encoded value:', encoded)
+    else:
+        if isinstance(encoded, float):
+            # Format the float to three decimal places
+            encoded_str = "%.3f" % encoded
+        else:
+            # Otherwise, keep the original encoded value
+            encoded_str = str(encoded)
+        st.write('Encoded value:', encoded_str)
+    
     st.write('Bits after encoding: ', after)
     numerator, denominator = (before / after).as_integer_ratio()
 
@@ -62,7 +73,7 @@ with col1:
     # st.write("Encoded value: ", encoded_file)
     before,after = Metrics.No_bits(text,encoded_file)
 
-    printResults(before, after)
+    printResults(before, after, encoded_file)
     # st.markdown('<center>Compression ratio</center>', unsafe_allow_html=True)
     # st.markdown('<center>' + str(before/after) +'</center>', unsafe_allow_html=True)
 
@@ -71,38 +82,36 @@ with col2:
     huffman = Huffman()
     encoded,d = huffman.encode(text)
     after = len(encoded)
-    printResults(no_bitsBefore, after)
+    printResults(no_bitsBefore, after, encoded)
 
 with col3:
     # revise sequence stuff
     st.header("Arithmetic")
-    H,table = Metrics.entropy(text)
-    symbols = table.keys()
-    probabilities = table.values()
 
-    sequence = "abc"
-    # Encode the sequence
+    H, table = Metrics.entropy(text)
+    symbols = list(table.keys())
+    probabilities = list(table.values())
+
+    sequence = "abc" # needs revision
     encoded_value = Arithmetic.encode_sequence(sequence, symbols, probabilities)
-    # bins = Metrics.binarify(encoded_value)
-    # before,after = Metrics.No_bits(text,bits_array=bins)
-    # printResults(before, after)
-    # Output the encoded value
-    # st.write("Encoded value:", encoded_value)
-    # Convert the decimal value to its binary representation
-    binary_representation = format(encoded_value, '.50f')
-    # Count the number of bits required to represent the binary number (excluding the '0.' part)
-    num_bits = len(binary_representation) - 2
 
-    printResults(no_bitsBefore, num_bits)
-    # compression_ratio = no_bitsBefore / encoded_value
-    # st.write("Compression ratio:", compression_ratio)
+    # Calculate average length
+    # avg_length = Metrics.Avg_length([len(encoded_value)], probabilities)
+    binary_encoded_value = bin(int(encoded_value * (2 ** 64)))[2:]
+    num_bits_after = len(binary_encoded_value)
+
+    # Display results
+    printResults(no_bitsBefore, num_bits_after, encoded_value, isArithmetic = True)
+
+    # st.write("Average length:", avg_length)
+    # st.write("Entropy:", H)
 
 st.markdown("----")
 col4, col5 = st.columns(2)
     
 with col4:
     st.header("Golomb")
-    
+
     golomb = Golomb()
     encoded_file = []
     m = 1000
@@ -110,7 +119,7 @@ with col4:
         encoded_file.append(Golomb.golomb_encode(ord(integer),m))
     
     n_bits_before, n_bits_after = Metrics.No_bits(text, None, encoded_file)
-    printResults(n_bits_before, n_bits_after)
+    printResults(n_bits_before, n_bits_after, encoded_file)
 
 with col5:
     st.header("LZW")
@@ -120,7 +129,7 @@ with col5:
     l_avg = Metrics.Avg_length(bins, [1/len(bins)]*len(bins))
     H,d= Metrics.entropy(text)
     before,after = Metrics.No_bits(text,bits_array=bins)
-    printResults(before, after)
+    printResults(before, after, encoded_file)
     # st.write('Bits after encoding: ', after)
     # numerator, denominator = (before / after).as_integer_ratio()
 
