@@ -1,4 +1,5 @@
 import streamlit as st
+import math
 from compression import LZW
 from compression import Metrics
 from compression import RLE
@@ -19,6 +20,17 @@ st.title("Data Compression Project")
 text = st.text_input('Text to encode', 'abbfcsdfdddfadfafafa')
 no_bitsBefore = len(text) * 8
 st.write('Bits before encoding: ', no_bitsBefore)
+
+entropy, alpha_dist = Metrics.entropy(text)
+
+# Display probability of occurrence for each character in a table
+table_markdown = "Character | Probability\n-----------|-----------\n"
+for char, prob in alpha_dist.items():
+    table_markdown += f"{char} | {prob:.4f}\n"
+
+st.markdown(table_markdown)
+st.markdown("----")
+
 # st.write('Text to be encoded is ', text)
 # if before / after as integer ratio is so big then print before/after
 # return compressionRatio for comparison
