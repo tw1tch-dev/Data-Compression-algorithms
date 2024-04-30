@@ -14,5 +14,7 @@ h2 {
 table {
     margin-left: auto;
     margin-right: auto;
-  }
-  
+}
+/* [data-testid="stAppViewContainer"] {
+    background-image: linear-gradient(to bottom right, rgb(44, 93, 135), white);
+} */

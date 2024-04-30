@@ -25,6 +25,32 @@ with st.popover("Usage instructions"):
 # text to encode
 text = st.text_input('Text to encode', 'abbfcsdfdddfadfafafa')
 
+ratio = []
+def compareAlgorithms(ratio):
+    # Initialize formatted string
+    formatted_string = "| Algorithm | Compression Ratio |\n| ----------- | ----------- |\n"
+
+    # Iterate over each algorithm and its compression ratio
+    for algo, value in ratio:
+        # Append row to the formatted string
+        if value == max(ratio, key=lambda x: x[1])[1]:
+            # Highlight the maximum compression ratio row in green and bold
+            formatted_string += f"| <span style='color:#00C11A; font-weight:bold; font-style:italic;'>{algo}</span> | <span style='color:#00C11A; font-weight:bold; font-style:italic;'>{round(value, 2)}</span> |\n"
+        else:
+            # Regular row
+            formatted_string += f"| {algo} | {round(value, 2)} |\n"
+
+    # Render the formatted string using markdown
+    st.markdown(formatted_string, unsafe_allow_html=True)
+    
+    # Find the algorithm with the highest compression ratio
+    best_algorithm = max(ratio, key=lambda x: x[1])
+    
+    # Return the name of the best algorithm
+    return best_algorithm[0]
+
+
+
 golombOnly = False # boolean to check whether to use golomb only or everything else
 
 # warning message if there is no input
@@ -35,13 +61,13 @@ elif text.replace(',', '').isdigit(): # check if input is digits only and separa
     golombOnly = True
     parts = text.split(',')
 
+# Entropy and probability are global too, they don't depend on a particular algorithm
+H, prob = Metrics.entropy(text, True)
 # bits before encoding is global so print it before any other algorithm
 if not golombOnly:
     no_bitsBefore = len(text) * 8
     st.write('Bits before encoding: ', no_bitsBefore)
-
-# Entropy and probability are global too, they don't depend on a particular algorithm
-H, prob = Metrics.entropy(text)
+    H, prob = Metrics.entropy(text)
 st.write('Entropy: ', H)
 
 formatted_string = "| Character | Probability |\n| ----------- | ----------- |\n"
@@ -62,6 +88,8 @@ if not golombOnly:
     l_avg = Metrics.Avg_length(bins, [1/len(bins)]*len(bins)) # calc average length
     before,after = Metrics.No_bits(text,bits_array=bins) # calc no. of bits before and after encoding
 
+    ratio.append(('LZW', before/after))
+
     Metrics.printResults(before, after, encoded_file)
 
     st.write('Average length: ', l_avg)
@@ -80,6 +108,8 @@ if not golombOnly:
     after = len(encoded)
 
     Metrics.printResults(no_bitsBefore, after, encoded)
+
+    ratio.append(('Huffman', no_bitsBefore/after))
 
     # table for the codewords
     formatted_string = "| Letter | Codeword |\n| ----------- | ----------- |\n"
@@ -112,6 +142,8 @@ if not golombOnly:
 
     Metrics.printResults(before, after, encoded_file)
 
+    ratio.append(('RLE', before/after))
+
     st.markdown("----")
 
     # Arithmetic
@@ -137,6 +169,9 @@ if not golombOnly:
     num_bits_after = len(binary_encoded_value)
 
     Metrics.printResults(no_bitsBefore, num_bits_after, encoded_value, isArithmetic = True)
+
+    ratio.append(('Arithmetic', no_bitsBefore/num_bits_after))
+
     st.markdown("----")
 
 # GOLOMB ONLY WORKS WITH INTEGERS
@@ -178,3 +213,5 @@ if golombOnly:
     Metrics.printResults(before, after, encoded_file)
 
 # NOW HERE I NEED TO CHOOSE THE BEST TECHNIQUE AFTER COMPARISON
+if not golombOnly:
+    st.write('Best algorithm is ', compareAlgorithms(ratio))

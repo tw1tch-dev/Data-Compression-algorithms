@@ -60,7 +60,7 @@ class Metrics:
             n_bits_after = sum([len(bits) for bits in bits_array])
         return n_bits_before,n_bits_after
     @staticmethod
-    def entropy(file):
+    def entropy(file, isGolomb = False):
         """
         caculate the entropy and alphabet distribution
         input:
@@ -71,12 +71,21 @@ class Metrics:
         alpha_dist(dict)---> distribution of each character in the file
         """
         alpha_dist = dict()
-        n = len(file)
-        for c in file:
-            if c in alpha_dist:
-                alpha_dist[c] += 1/n
-            else:
-                alpha_dist[c] = 1/n
+        if isGolomb:
+            n = len(file.replace(',',''))
+            for c in file:
+                if c != ',':
+                    if c in alpha_dist:
+                        alpha_dist[c] += 1/n
+                    else:
+                        alpha_dist[c] = 1/n
+        else:
+            n = len(file)
+            for c in file:
+                if c in alpha_dist:
+                    alpha_dist[c] += 1/n
+                else:
+                    alpha_dist[c] = 1/n
         H = 0
         for p in alpha_dist.values(): 
             H += p * math.log2(1/p)
