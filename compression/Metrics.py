@@ -54,7 +54,8 @@ class Metrics:
             ints         = re.findall("\d+",encoded_file)
             ints         = [int(i) for i in ints]
             strings      = re.split("\d+|\s",encoded_file)
-            strings.remove("")
+            # strings.remove("")
+            strings = [s for s in strings if s]
             n_bits_after = (len(strings) * 8) + (len(ints) * math.ceil(math.log2(max(ints)+1)))
         else:
             n_bits_after = sum([len(bits) for bits in bits_array])

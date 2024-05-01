@@ -20,17 +20,18 @@ st.title("Data Compression Project")
 
 # popover for instructions
 with st.popover("Usage instructions"):
-    st.markdown("Hello there! 👋  \n\nIn order to use Golomb Code, you need to put digits only and separated by commas (,).     \n Example: 2,5,1500,3,3,2")
+    st.markdown("Hello there! 👋  \n\nIn order to use Golomb Code, you need to put digits only and separated by commas (,).     \n \u2022 Example: 2,5,1500,3,3,2")
 
 # text to encode
 text = st.text_input('Text to encode', 'abbfcsdfdddfadfafafa')
 
 ratio = []
 def compareAlgorithms(ratio):
+    st.subheader('Techniques Comparison')
     # Initialize formatted string
-    formatted_string = "| Algorithm | Compression Ratio |\n| ----------- | ----------- |\n"
+    formatted_string = "| Technique | Compression Ratio |\n| ----------- | ----------- |\n"
 
-    # Iterate over each algorithm and its compression ratio
+    # Iterate over each technique and its compression ratio
     for algo, value in ratio:
         # Append row to the formatted string
         if value == max(ratio, key=lambda x: x[1])[1]:
@@ -42,12 +43,17 @@ def compareAlgorithms(ratio):
 
     # Render the formatted string using markdown
     st.markdown(formatted_string, unsafe_allow_html=True)
+    st.write('\n')
     
     # Find the algorithm with the highest compression ratio
     best_algorithm = max(ratio, key=lambda x: x[1])
     
     # Return the name of the best algorithm
     return best_algorithm[0]
+
+def is_binary(text):
+    # Check if the text contains only 0s and 1s
+    return all(char in '01' for char in text)
 
 
 
@@ -68,7 +74,7 @@ if not golombOnly:
     no_bitsBefore = len(text) * 8
     st.write('Bits before encoding: ', no_bitsBefore)
     H, prob = Metrics.entropy(text)
-st.write('Entropy: ', H)
+st.write('Entropy: ', round(H, 2))
 
 formatted_string = "| Character | Probability |\n| ----------- | ----------- |\n"
 
@@ -149,6 +155,13 @@ if not golombOnly:
     # Arithmetic
     st.header('Arithmetic')
 
+    # section examples
+    # text: cbaaaaaaaacaaaaccacaaacaaaaaacaaccaaaaaaccaabcaaaaaacaaaaaaaaacaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    # seq: acba
+
+    # text: bcbabcbabc
+    # seq: bac
+
     H, table = Metrics.entropy(text)
     symbols = list(table.keys())
     probabilities = [round(prob, 2) for prob in table.values()]
@@ -208,10 +221,20 @@ if golombOnly:
     before  = len(bins) * len(bins[0]) # calc bits before encoding
     _,after = Metrics.No_bits("",bits_array=encoded_file) # calc bits after encoding
 
+    if is_binary(text):
+        before = len(text)
     # output
     st.write('Bits before encoding: ', before)
     Metrics.printResults(before, after, encoded_file)
 
 # NOW HERE I NEED TO CHOOSE THE BEST TECHNIQUE AFTER COMPARISON
 if not golombOnly:
-    st.write('Best algorithm is ', compareAlgorithms(ratio))
+    st.markdown('\u2022 The most optimal technique is **' + compareAlgorithms(ratio) + '**.', unsafe_allow_html=True)
+
+# Latex will be probably be used later
+# st.latex(r'E = -\sum_{i} p_i \log_2(p_i)')
+# st.latex(r'L_{\text{av}} = \sum_i L_i \ p_i')
+# st.latex(r'Efficiency = \frac{E}{L_{\text{av}}} \times 100')
+
+# TODO check for the binary input and RLE
+# TODO make a checkbox for algorithms to use maybe, check more for input errors and different algorithms
