@@ -6,7 +6,12 @@ class Arithmetic:
     def initialize_encoder(symbols, probabilities):
         # Validate symbol and probability lengths
         assert len(symbols) == len(probabilities) > 0
-        assert sum(probabilities) == 1.0
+
+        # Ensure that the sum of probabilities equals 1.0
+        sum_probabilities = sum(probabilities)
+        if sum_probabilities != 1.0:
+            # Normalize probabilities to ensure they sum up to 1.0
+            probabilities = [prob / sum_probabilities for prob in probabilities]
 
         # Convert symbols to lowercase for uniformity
         symbols = [symbol.lower() for symbol in symbols]

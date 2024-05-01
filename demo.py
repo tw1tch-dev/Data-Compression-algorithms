@@ -1,4 +1,6 @@
 import streamlit as st
+import random
+import math
 from compression import LZW
 from compression import Metrics
 from compression import RLE
@@ -68,12 +70,14 @@ elif text.replace(',', '').isdigit(): # check if input is digits only and separa
     parts = text.split(',')
 
 # Entropy and probability are global too, they don't depend on a particular algorithm
-H, prob = Metrics.entropy(text, True)
 # bits before encoding is global so print it before any other algorithm
+no_bitsBefore = len(text) * 8
+
 if not golombOnly:
-    no_bitsBefore = len(text) * 8
     st.write('Bits before encoding: ', no_bitsBefore)
     H, prob = Metrics.entropy(text)
+else:
+    H, prob = Metrics.entropy(text, True)
 st.write('Entropy: ', round(H, 2))
 
 formatted_string = "| Character | Probability |\n| ----------- | ----------- |\n"
@@ -83,7 +87,27 @@ for letter, probability in prob.items():
 
 st.markdown(formatted_string)
 st.markdown("----")
+def generate_test_sequence(text, symbols, probabilities):
+    # Initialize cumulative probabilities
+    cumulative_probabilities = [0]
+    for prob in probabilities:
+        cumulative_probabilities.append(cumulative_probabilities[-1] + prob)
 
+    # Generate the test sequence
+    test_sequence = []
+    for _ in range(len(text)):
+        # Generate a random number between 0 and 1
+        rand_num = random.random()
+
+        # Find the symbol based on the random number and cumulative probabilities
+        for i, cumulative_prob in enumerate(cumulative_probabilities):
+            if rand_num < cumulative_prob:
+                test_sequence.append(symbols[i - 1])
+                break
+
+    return ''.join(test_sequence)
+
+# Assuming 'text', 'symbols', and 'probabilities' are already defined
 if not golombOnly:
     # LZW
     st.header('LZW')
@@ -98,7 +122,7 @@ if not golombOnly:
 
     Metrics.printResults(before, after, encoded_file)
 
-    st.write('Average length: ', l_avg)
+    st.write('Average length: ', round(l_avg, 2))
 
     # efficiency
     efficiency = H/l_avg * 100
@@ -130,7 +154,7 @@ if not golombOnly:
         p = prob[char]
         avg_length += len(code) * p
 
-    st.write("Average length:", avg_length)
+    st.write("Average length:", round(avg_length, 2))
 
     # efficiency
     efficiency = H/avg_length * 100
@@ -143,8 +167,11 @@ if not golombOnly:
     st.header('RLE')
 
     rle = RLE()
-    encoded_file = rle.run_length_encoding(text)
+    encoded_file, vectorsNum, maxNum = rle.run_length_encoding(text)
     before, after = Metrics.No_bits(text, encoded_file)
+    if is_binary(text):
+        before = len(text)
+        after = (vectorsNum) * (1 + math.ceil(math.log2(maxNum+1)))
 
     Metrics.printResults(before, after, encoded_file)
 
@@ -165,10 +192,24 @@ if not golombOnly:
     H, table = Metrics.entropy(text)
     symbols = list(table.keys())
     probabilities = [round(prob, 2) for prob in table.values()]
-
+    sum_probabilities = sum(probabilities)
+    if sum_probabilities != 1.0:
+        probabilities = [prob / sum_probabilities for prob in probabilities]
     sorted_symbols, sorted_probabilities = zip(*sorted(zip(symbols, probabilities)))
 
-    sequence = st.text_input('Sequence')
+    sequence = None
+
+    # Get the user input sequence
+    sequence_input = st.text_input('Sequence')
+
+    # If the user input sequence is not empty, use it
+    if sequence_input:
+        sequence = sequence_input
+    else:
+        # Generate the test sequence
+        sequence = generate_test_sequence(text, symbols, probabilities)
+        st.write('Current generated sequence: ', sequence)
+
     # if user didn't put in a sequence, show the warning
     if not sequence:
         st.warning("You need to put in the sequence.")
@@ -221,11 +262,12 @@ if golombOnly:
     before  = len(bins) * len(bins[0]) # calc bits before encoding
     _,after = Metrics.No_bits("",bits_array=encoded_file) # calc bits after encoding
 
-    if is_binary(text):
+    if is_binary(text): # check if it will count commas too
         before = len(text)
     # output
     st.write('Bits before encoding: ', before)
     Metrics.printResults(before, after, encoded_file)
+    ratio.append(('Golomb', before/after))
 
 # NOW HERE I NEED TO CHOOSE THE BEST TECHNIQUE AFTER COMPARISON
 if not golombOnly:
@@ -238,3 +280,4 @@ if not golombOnly:
 
 # TODO check for the binary input and RLE
 # TODO make a checkbox for algorithms to use maybe, check more for input errors and different algorithms
+# TODO check for input, if it's integer (like binary), ask the user if he wants to use all techniques or only golomb
