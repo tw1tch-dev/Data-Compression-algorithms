@@ -291,6 +291,14 @@ with mainTab:
         binary_encoded_value = bin(int(encoded_value * (2 ** 64)))[2:]
         num_bits_after = len(binary_encoded_value)
 
+        H, prob = Metrics.entropy(text)
+        formatted_string = "| Character | Probability |\n| ----------- | ----------- |\n"
+
+        for letter, probability in prob.items():
+            formatted_string += f"| {letter} | {round(probability, 2)} |\n"
+
+        st.markdown(formatted_string)
+
         Metrics.printResults(no_bitsBefore, num_bits_after, encoded_value, isArithmetic=True)
         ratio.append(('Arithmetic', no_bitsBefore/num_bits_after))
 
