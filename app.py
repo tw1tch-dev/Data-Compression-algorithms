@@ -36,7 +36,7 @@ with instructionsTab:
 
 with mainTab:
     # text to encode
-    text = st.text_input('Text to encode', 'abbfcsdfdddfadfafafa')
+    text = st.text_input('Text to encode')
 
     # variables declaration
     no_bitsBefore = len(text) * 8
