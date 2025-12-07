@@ -2,6 +2,13 @@
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)
 
+<p align="center">
+  <a href="https://data-compression-algorithms.streamlit.app/" target="_blank">
+    <img src="https://img.shields.io/badge/🔴_LIVE_DEMO-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live Demo"/>
+  </a>
+</p>
+
+
 An interactive **Streamlit web application** that lets you compare **5 classic lossless data compression algorithms** side-by-side on your own input text:
 
 | Algorithm         | Type                     | Best For                                      |
